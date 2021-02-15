@@ -150,7 +150,7 @@ lazy val beam =
   project
     .in(file("modules/beam"))
     .dependsOn(common)
-    .settings(BuildSettings.basicSettings)
+    .settings(BuildSettings.basicSettings ++ BuildSettings.sbtAssemblySettings)
     .settings(BuildSettings.dataflowDockerSettings)
     .settings(BuildSettings.formatting)
     .settings(BuildSettings.scoverageSettings)
@@ -239,3 +239,5 @@ lazy val bench = project
   .in(file("modules/bench"))
   .dependsOn(fs2 % "test->test")
   .enablePlugins(JmhPlugin)
+
+ThisBuild / useCoursier := false

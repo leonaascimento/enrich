@@ -40,6 +40,7 @@ object BuildSettings {
     javacOptions          :=  Seq("-source", "11", "-target", "11"),
     resolvers             ++= Dependencies.resolutionRepos,
     licenses              += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    test in sbtassembly.AssemblyKeys.assembly := {}
   )
 
   /** Custom sbt-buildinfo replacement, used by SCE only */
@@ -102,11 +103,14 @@ object BuildSettings {
   lazy val sbtAssemblySettings = Seq(
     assemblyJarName in assembly := { s"${moduleName.value}-${version.value}.jar" },
     assemblyMergeStrategy in assembly := {
-      case x if x.endsWith("native-image.properties") => MergeStrategy.first
-      case x if x.endsWith("io.netty.versions.properties") => MergeStrategy.first
-      case x if x.endsWith("public-suffix-list.txt") => MergeStrategy.first
-      case x if x.endsWith("ProjectSettings$.class") => MergeStrategy.first
-      case x if x.endsWith("module-info.class") => MergeStrategy.first
+      case x if x.endsWith("native-image.properties") => MergeStrategy.filterDistinctLines
+      case x if x.endsWith("io.netty.versions.properties") => MergeStrategy.filterDistinctLines
+      case x if x.endsWith("public-suffix-list.txt") => MergeStrategy.filterDistinctLines
+      case x if x.endsWith("ProjectSettings$.class") => MergeStrategy.last
+      case x if x.endsWith("module-info.class") => MergeStrategy.last
+      case x if x.endsWith(".proto") => MergeStrategy.last
+      case x if x.endsWith("reflection-config.json") => MergeStrategy.rename
+      case x if x.endsWith("log4j.properties") => MergeStrategy.filterDistinctLines
       case x =>
         val oldStrategy = (assemblyMergeStrategy in assembly).value
         oldStrategy(x)
